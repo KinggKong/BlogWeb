@@ -1,0 +1,62 @@
+.blog-post-preview {
+    transition: transform 0.2s ease-in-out;
+}
+
+.blog-post-preview:hover {
+    transform: translateY(-5px);
+}
+
+.post-meta {
+    font-size: 0.9rem;
+}
+
+/* detail post */
+.blog-content {
+    font-size: 1.1rem;
+    line-height: 1.8;
+}
+
+.comment-avatar {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+}
+
+.comment {
+    transition: background-color 0.3s ease;
+}
+
+.comment:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+.comment-metadata {
+    font-size: 0.9rem;
+}
+
+.tag {
+    font-size: 0.9rem;
+}
+
+.author-bio {
+    font-size: 0.95rem;
+}
+
+/*end post*/
+
+/*start emoij */
+ .emoji-grid {
+     display: grid;
+     grid-template-columns: repeat(6, 1fr);
+     gap: 5px;
+ }
+
+.emoji-btn {
+    padding: 5px;
+    font-size: 1.2em;
+}
+
+.selected-icon {
+    font-size: 1.5em;
+}
+/*end emoij*/

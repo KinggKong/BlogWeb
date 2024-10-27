@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Future of Web Development - Blog Post</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+            integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+        <a class="navbar-brand" href="/home">TechBlog</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/home">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Categories</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Contact</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <article class="mb-5">
+                <h1 class="mb-4" th:text="${post.title}"></h1>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <img th:src="${post.author.image}" alt="Jane Doe" class="rounded-circle me-2" width="50"
+                             height="50">
+                        <span class="fw-bold" th:text="${post.name_user}"></span>
+                    </div>
+                    <div class="text-muted">
+                        <i class="bi bi-calendar3"></i> Published on <span
+                            th:text="${#temporals.format(post.created_at, 'dd-MM-yyyy HH:mm')}"></span>
+                        <span class="ms-3"><i class="bi bi-eye"></i> 1,234 views</span>
+                    </div>
+                </div>
+                <img th:src="${post.image}" alt="The Future of Web Development" class="img-fluid rounded mb-4">
+                <div class="blog-content" th:text="${post.content}">
+                </div>
+                <div class="mt-4">
+                    <h3>Tags</h3>
+                    <a href="#" class="badge bg-primary text-decoration-none tag me-2">WebDev</a>
+                    <a href="#" class="badge bg-primary text-decoration-none tag me-2">WebAssembly</a>
+                    <a href="#" class="badge bg-primary text-decoration-none tag me-2">AI</a>
+                    <a href="#" class="badge bg-primary text-decoration-none tag">Accessibility</a>
+                </div>
+            </article>
+
+            <section class="author-bio bg-light p-4 rounded mb-5">
+                <h3>About the Author</h3>
+                <div class="d-flex">
+                    <img th:src="${post.author.image}" alt="Jane Doe" class="rounded-circle me-3" width="100"
+                         height="100">
+                    <div>
+                        <h4 th:text="${post.name_user}"></h4>
+                        <p class="author-bio">Jane Doe is a seasoned web developer with over 10 years of experience. She
+                            specializes in front-end technologies and is passionate about creating accessible and
+                            performant web applications.</p>
+                        <a href="#" class="btn btn-sm btn-outline-primary">View all posts by Jane</a>
+                    </div>
+                </div>
+            </section>
+
+            <section class="comments mt-5" id="main_comment">
+                <h2 class="mb-4" th:if="${post.totalComments > 0}" id="totalComments">Comments (<span
+                        th:text="${post.totalComments}"></span>)</h2>
+
+                <div th:each="comment : ${post.comments}" class="comment card mb-3">
+                    <div class="card-body">
+                        <div class="d-flex">
+                            <img th:src="${comment.account.image}" alt="John Smith's avatar"
+                                 class="rounded-circle me-3 comment-avatar">
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h5 class="card-title mb-0" th:text="${comment.name_user}"></h5>
+                                    <small class="text-muted comment-metadata">
+                                        <i class="bi bi-clock"></i>
+                                        <span th:text="${#temporals.format(comment.created_at, 'dd-MM-yyyy HH:mm')}"></span>
+                                    </small>
+                                </div>
+                                <p class="card-text" th:text="${comment.content}"></p>
+                                <img th:if="${comment.image}" th:src="${comment.image}" alt="Comment Image"
+                                     class="img-fluid">
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <button class="btn btn-sm btn-outline-primary"
+                                            th:data-bs-target="'#replyForm-' + ${comment.id}"
+                                            data-bs-toggle="collapse">Reply
+                                    </button>
+                                    <div>
+                                        <button class="btn btn-sm btn-outline-secondary me-2">
+                                            <i class="bi bi-hand-thumbs-up"></i> 5
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-hand-thumbs-down"></i> 0
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="collapse mt-3" th:id="'replyForm-' + ${comment.id}">
+                                    <form th:onsubmit="'submitReply(event, ' + ${comment.id} + '); return false;'" class="reply-form">
+                                        <div class="mb-3">
+                                            <textarea class="form-control reply-content" rows="3" placeholder="Write your reply..."></textarea>
+                                        </div>
+                                        <div th:id="'previewArea-' + ${comment.id}" class="mb-3 d-none">
+                                            <img th:id="'imagePreview-' + ${comment.id}" class="reply-image-preview img-fluid rounded mb-2" style="max-height: 200px; display: none;">
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="d-flex gap-2">
+                                                <div class="position-relative">
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm" th:onclick="'document.querySelector(\'#imageInput-' + ${comment.id} + '\').click()'">
+                                                        <i class="bi bi-image"></i> Add Image
+                                                    </button>
+                                                    <input type="file" th:id="'imageInput-' + ${comment.id}" class="reply-image-input" accept="image/*"
+                                                           style="display: none;" th:onchange="'handleReplyImageSelect(event, ' + ${comment.id} + ')'">
+                                                </div>
+                                                <!-- Emoji dropdown remains the same -->
+                                            </div>
+                                            <button type="submit" class="btn btn-primary btn-sm">Submit Reply</button>
+                                        </div>
+                                    </form>
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div th:if="${comment.replyComment.size() > 0}">
+                        <div class="card-body border-top" th:each="relyCmt : ${comment.replyComment}"
+                             id="main_replyComment">
+                            <div class="d-flex">
+                                <div class="flex-grow-0 me-3">
+                                    <div style="width: 32px; height: 32px;"></div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex">
+                                        <img th:src="${relyCmt.account.image}" alt="Jane Doe's avatar"
+                                             class="rounded-circle me-3" style="width: 48px; height: 48px;">
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <h6 class="card-title mb-0" th:text="${relyCmt.name_user}"></h6>
+                                                <small class="text-muted comment-metadata">
+                                                    <i class="bi bi-clock"></i>
+                                                    <span th:text="${#temporals.format(relyCmt.created_at, 'dd-MM-yyyy HH:mm')}"></span>
+                                                </small>
+                                            </div>
+                                            <p class="card-text" th:text="${relyCmt.content}"></p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <button class="btn btn-sm btn-outline-primary"
+                                                        th:data-bs-target="'#replyForm-reply-' + ${relyCmt.id}"
+                                                        data-bs-toggle="collapse">Reply
+                                                </button>
+                                                <div>
+                                                    <button class="btn btn-sm btn-outline-secondary me-2">
+                                                        <i class="bi bi-hand-thumbs-up"></i> 3
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-secondary">
+                                                        <i class="bi bi-hand-thumbs-down"></i> 0
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="collapse mt-3" th:id="'replyForm-reply-' + ${relyCmt.id}">
+                                                <form th:onsubmit="'submitReply(event, ' + ${relyCmt.id} + '); return false;'">
+                                                    <div class="mb-3">
+                                                        <textarea class="form-control" rows="3" placeholder="Write your reply..."></textarea>
+                                                    </div>
+                                                    <div th:id="'previewArea-reply-' + ${relyCmt.id}" class="mb-3 d-none">
+                                                        <img th:id="'imagePreview-reply-' + ${relyCmt.id}" class="reply-image-preview img-fluid rounded mb-2" style="max-height: 200px; display: none;">
+                                                    </div>
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <div class="position-relative">
+                                                            <button type="button" class="btn btn-outline-secondary btn-sm" th:onclick="'document.querySelector(\'#imageInput-reply-' + ${relyCmt.id} + '\').click()'">
+                                                                <i class="bi bi-image"></i> Add Image
+                                                            </button>
+                                                            <input type="file" th:id="'imageInput-reply-' + ${relyCmt.id}" class="reply-image-input" accept="image/*"
+                                                                   style="display: none;" th:onchange="'handleReplyImageSelect(event, ' + ${relyCmt.id} + ')'">
+                                                        </div>
+                                                        <button type="submit" class="btn btn-primary btn-sm">Submit Reply</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="add-comment mt-5">
+                <h3 class="mb-4">Add a Comment</h3>
+                <!-- Form chính để comment -->
+                <form id="commentForm" class="mb-4" onsubmit="addComment(event)">
+                    <input type="hidden" id="postId" th:value="${post.id}">
+                    <div class="card">
+                        <div class="card-body">
+                            <textarea id="commentContent" class="form-control mb-3" rows="3"
+                                      placeholder="Write your comment..."></textarea>
+                            <div id="previewArea" class="mb-3 d-none">
+                                <img id="imagePreview" class="img-fluid rounded mb-2"
+                                     style="max-height: 200px; display: none;">
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex gap-2">
+                                    <div class="position-relative">
+                                        <button type="button" class="btn btn-outline-secondary btn-sm"
+                                                onclick="document.getElementById('imageInput').click()">
+                                            <i class="bi bi-image"></i> Add Image
+                                        </button>
+                                        <input type="file" id="imageInput" accept="image/*" style="display: none;"
+                                               onchange="handleImageSelect(event)">
+                                    </div>
+
+                                    <div class="dropdown">
+                                        <button type="button" class="btn btn-outline-secondary btn-sm"
+                                                data-bs-toggle="dropdown">
+                                            <i class="bi bi-emoji-smile"></i> Add Emoji
+                                        </button>
+                                        <div class="dropdown-menu p-2" style="width: 300px;">
+                                            <div class="emoji-grid">
+                                                <button type="button" class="btn btn-light emoji-btn"
+                                                        onclick="addEmoji('😊')">😊
+                                                </button>
+                                                <button type="button" class="btn btn-light emoji-btn"
+                                                        onclick="addEmoji('👍')">👍
+                                                </button>
+                                                <button type="button" class="btn btn-light emoji-btn"
+                                                        onclick="addEmoji('❤️')">❤️
+                                                </button>
+                                                <button type="button" class="btn btn-light emoji-btn"
+                                                        onclick="addEmoji('😂')">😂
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Post Comment</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+
+            </section>
+        </div>
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="card-title">Search</h3>
+                    <form class="d-flex">
+                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                        <button class="btn btn-outline-primary" type="submit">Search</button>
+                    </form>
+                </div>
+            </div>
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="card-title">Categories</h3>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Web Development
+                            <span class="badge bg-primary rounded-pill">12</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            JavaScript
+                            <span class="badge bg-primary rounded-pill">8</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            CSS
+                            <span class="badge bg-primary rounded-pill">5</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            React
+                            <span class="badge bg-primary rounded-pill">7</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3 class="card-title">Recent Posts</h3>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#" class="text-decoration-none">10 Must-Know JavaScript Tips</a></li>
+                        <li class="mb-2"><a href="#" class="text-decoration-none">CSS Grid: A Complete Guide</a></li>
+                        <li class="mb-2"><a href="#" class="text-decoration-none">Getting Started with React Hooks</a>
+                        </li>
+                        <li class="mb-2"><a href="#" class="text-decoration-none">The Power of Progressive Web Apps</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">Subscribe</h3>
+                    <p>Stay updated with our latest posts!</p>
+                    <form>
+                        <div class="mb-3">
+                            <input type="email" class="form-control" placeholder="Enter your email" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Subscribe</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="bg-light mt-5 py-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h5>About TechBlog</h5>
+                <p>Bringing you the latest in web development and technology.</p>
+            </div>
+            <div class="col-md-4">
+                <h5>Quick Links</h5>
+                <ul class="list-unstyled">
+                    <li><a href="#" class="text-decoration-none">Home</a></li>
+                    <li><a href="#" class="text-decoration-none">About</a></li>
+                    <li><a href="#" class="text-decoration-none">Contact</a></li>
+                    <li><a href="#" class="text-decoration-none">Privacy Policy</a></li>
+
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h5>Follow Us</h5>
+                <a href="#" class="text-decoration-none me-2"><i class="bi bi-facebook"></i></a>
+                <a href="#" class="text-decoration-none me-2"><i class="bi bi-twitter"></i></a>
+                <a href="#" class="text-decoration-none me-2"><i class="bi bi-linkedin"></i></a>
+                <a href="#" class="text-decoration-none"><i class="bi bi-github"></i></a>
+            </div>
+        </div>
+        <hr>
+        <div class="text-center">
+            <small>&copy; 2024 TechBlog. All rights reserved.</small>
+        </div>
+    </div>
+</footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/blogDetail.js"></script>
+</body>
+</html>

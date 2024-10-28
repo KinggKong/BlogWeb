@@ -5,9 +5,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.springjdbc.entity.Post;
 import org.example.springjdbc.mapper.PostMapper;
-import org.example.springjdbc.model.CommentResponse;
-import org.example.springjdbc.model.PageModel;
-import org.example.springjdbc.model.PostResponse;
+import org.example.springjdbc.dto.CommentResponse;
+import org.example.springjdbc.dto.PageModel;
+import org.example.springjdbc.dto.PostResponse;
 import org.example.springjdbc.repository.PostRepository;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +21,7 @@ import java.util.stream.IntStream;
 public class PostService {
     PostRepository postRepository;
     CommentService commentService;
+    LikePostService likePostService;
 
     public List<PostResponse> findAll(int pageNumber, int pageSize) {
         if (pageNumber < 1) {
@@ -45,6 +46,7 @@ public class PostService {
         List<PostResponse> postResponses = PostMapper.toPostResonseList(posts);
         for (PostResponse postResponse : postResponses) {
             postResponse.setTotalComments(postRepository.countCommentByPost(postResponse.getId()));
+            postResponse.setTotalLikes(likePostService.countLikeByPostId(postResponse.getId()));
         }
         int totalPages = (int) Math.ceil((double) postRepository.countAllPost() / pageSize);
         List<Integer> pageNumbers = null;
@@ -77,5 +79,93 @@ public class PostService {
     public Long countAllPost() {
         return postRepository.countAllPost();
     }
+
+    public PageModel paginationSearch(int pageNumber, int pageSize, String keySearch) {
+        int currentPage = pageNumber;
+        if (pageNumber < 1) {
+            pageNumber = 1;
+        }
+        pageNumber -= 1;
+        List<Post> posts = postRepository.search(keySearch, pageNumber, pageSize);
+        List<PostResponse> postResponses = PostMapper.toPostResonseList(posts);
+        for (PostResponse postResponse : postResponses) {
+            postResponse.setTotalComments(postRepository.countCommentByPost(postResponse.getId()));
+            postResponse.setTotalLikes(likePostService.countLikeByPostId(postResponse.getId()));
+        }
+        int totalPages = (int) Math.ceil((double) postRepository.countSearch(keySearch) / pageSize);
+        List<Integer> pageNumbers = null;
+        if (totalPages > 0) {
+            pageNumbers = IntStream.rangeClosed(1, totalPages)
+                    .boxed()
+                    .collect(Collectors.toList());
+        }
+        return PageModel.<PostResponse>builder()
+                .currentPage(currentPage)
+                .totalPage(totalPages)
+                .data(postResponses)
+                .pageNumbers(pageNumbers)
+                .build();
+    }
+
+    public List<PostResponse> top5Recent() {
+        List<Post> posts = postRepository.top5Recent();
+        return PostMapper.toPostResonseList(posts);
+    }
+
+    public PageModel findByCategory(Long idCategory, int pageNumber, int pageSize) {
+        int currentPage = pageNumber;
+        if (pageNumber < 1) {
+            pageNumber = 1;
+        }
+        pageNumber -= 1;
+        List<Post> posts = postRepository.findByCategory(idCategory, pageNumber, pageSize);
+        List<PostResponse> postResponses = PostMapper.toPostResonseList(posts);
+        for (PostResponse postResponse : postResponses) {
+            postResponse.setTotalComments(postRepository.countCommentByPost(postResponse.getId()));
+            postResponse.setTotalLikes(likePostService.countLikeByPostId(postResponse.getId()));
+        }
+        int totalPages = (int) Math.ceil((double) postRepository.countByIdCategory(idCategory) / pageSize);
+        List<Integer> pageNumbers = null;
+        if (totalPages > 0) {
+            pageNumbers = IntStream.rangeClosed(1, totalPages)
+                    .boxed()
+                    .collect(Collectors.toList());
+        }
+        return PageModel.<PostResponse>builder()
+                .currentPage(currentPage)
+                .totalPage(totalPages)
+                .data(postResponses)
+                .pageNumbers(pageNumbers)
+                .build();
+    }
+
+    public PageModel findByFavouriteAccount(Long idAccount, int pageNumber, int pageSize) {
+        int currentPage = pageNumber;
+        if (pageNumber < 1) {
+            pageNumber = 1;
+        }
+        pageNumber -= 1;
+        List<Post> posts = postRepository.findByMyFavorite(idAccount, pageNumber, pageSize);
+        List<PostResponse> postResponses = PostMapper.toPostResonseList(posts);
+        for (PostResponse postResponse : postResponses) {
+            postResponse.setTotalComments(postRepository.countCommentByPost(postResponse.getId()));
+            postResponse.setTotalLikes(likePostService.countLikeByPostId(postResponse.getId()));
+        }
+        int totalPages = (int) Math.ceil((double) postRepository.countMyFavorite(idAccount) / pageSize);
+        List<Integer> pageNumbers = null;
+        if (totalPages > 0) {
+            pageNumbers = IntStream.rangeClosed(1, totalPages)
+                    .boxed()
+                    .collect(Collectors.toList());
+        }
+        return PageModel.<PostResponse>builder()
+                .currentPage(currentPage)
+                .totalPage(totalPages)
+                .data(postResponses)
+                .pageNumbers(pageNumbers)
+                .build();
+    }
+
+
 
 }

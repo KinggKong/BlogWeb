@@ -1,8 +1,8 @@
 package org.example.springjdbc.mapper;
 
-import org.example.springjdbc.dto.CommentRequest;
+import org.example.springjdbc.model.CommentRequest;
 import org.example.springjdbc.entity.Comment;
-import org.example.springjdbc.model.CommentResponse;
+import org.example.springjdbc.dto.CommentResponse;
 
 import java.util.ArrayList;
 import java.util.List;

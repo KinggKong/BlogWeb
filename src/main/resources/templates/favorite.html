@@ -1,20 +1,15 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
-<html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TechBlog - Home</title>
+    <title>TechBlog - Search Results</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
             integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
             crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
     <link rel="stylesheet" href="/css/style.css">
 </head>
 
@@ -32,8 +27,7 @@
                     <a class="nav-link active" aria-current="page" href="/home">Home</a>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                       data-bs-toggle="dropdown" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Categories
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
@@ -50,11 +44,6 @@
 <!--                    <a class="nav-link" href="/authors">Authors</a>-->
 <!--                </li>-->
             </ul>
-            <div th:if="${session.user != null}">
-                <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#newBlogModal">
-                    New Blog
-                </button>
-            </div>
             <div th:if="${session.user == null}">
                 <a href="/auth/login" class="btn btn-outline-primary">
                     <i class="fas fa-sign-in-alt me-2"></i>Login
@@ -69,7 +58,7 @@
 </nav>
 
 <div class="container mt-5">
-    <h1 class="text-center mb-5">Welcome to TechBlog</h1>
+    <h1 class="text-center mb-5">My Favorite</h1>
 
     <div class="row">
         <div class="col-lg-8">
@@ -81,17 +70,14 @@
                     </div>
                     <div class="col-md-8">
                         <div class="card-body">
-                            <h2 class="card-title h4" th:text="${post.title}">The Future of Web Development</h2>
-                            <p class="card-text" th:text="${#strings.abbreviate(post.content, 200)}"></p>
+                            <h3 class="card-title h4" th:text="${post.title}">Search Result Title</h3>
+                            <p class="card-text" th:text="${#strings.abbreviate(post.content, 200)}">This is a preview of the search result content...</p>
                             <p class="card-text post-meta">
                                 <small class="text-muted">
                                     <i class="bi bi-person"></i> <span th:text="${post.name_user}"></span>
-
-                                    <i class="bi bi-calendar3 ms-2"></i> <span
-                                        th:text="${#temporals.format(post.created_at, 'dd-MM-yyyy HH:mm')}"></span>
+                                    <i class="bi bi-calendar3 ms-2"></i> <span th:text="${#temporals.format(post.created_at, 'dd-MM-yyyy HH:mm')}"></span>
                                     <span th:if="${post.totalComments > 0}">
-                                           <i class="bi bi-chat-left-text ms-2"></i> <span
-                                            th:text="${post.totalComments}"></span> Comments
+                                        <i class="bi bi-chat-left-text ms-2"></i> <span th:text="${post.totalComments}"></span> Comments
                                     </span>
                                     <i class="bi bi-tags ms-2"></i>
                                     <span th:text="${post.categoryResponse.category_name}"></span>
@@ -101,27 +87,25 @@
                                 </span>
                                 </small>
                             </p>
-                            <a th:href="@{/api/v1/posts/{id}(id=${post.id})}" class="btn btn-primary btn-sm">Read
-                                More</a>
+                            <a th:href="@{/api/v1/posts/{id}(id=${post.id})}" class="btn btn-primary btn-sm">Read More</a>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <nav aria-label="Blog navigation" th:if="${pageModel.totalPage > 0}">
+            <nav aria-label="Search results navigation" th:if="${pageModel.totalPage > 0}">
                 <ul class="pagination justify-content-center">
                     <li class="page-item" th:class="${pageModel.currentPage == 1} ? 'page-item disabled' : 'page-item'">
-                        <a class="page-link" href="#"
-                           th:href="@{/home(pageNumber=${pageModel.currentPage - 1}, pageSize=4)}" tabindex="-1">Previous</a>
+                        <a class="page-link" th:href="@{/favorite/{id}(id=${session.user.id}, pageNumber=${pageModel.currentPage - 1}, pageSize=4)}" tabindex="-1">Previous</a>
                     </li>
-                    <li class="page-item" th:class="${p==pageModel.currentPage} ? 'page-item active' : 'page-item'"
-                        aria-current="page" th:each="p : ${pageModel.pageNumbers}">
-                        <a class="page-link" href="#" th:text="${p}"
-                           th:href="@{/home(pageNumber=${p}, pageSize=4)}"></a>
+
+                    <li class="page-item" th:class="${p == pageModel.currentPage} ? 'page-item active' : 'page-item'" aria-current="page" th:each="p : ${pageModel.pageNumbers}">
+                        <a class="page-link" th:text="${p}"
+                           th:href="@{/favorite/{id}(id=${session.user.id}, pageNumber=${p}, pageSize=4)}"></a>
                     </li>
-                    <li class="page-item"
-                        th:class="${pageModel.currentPage == pageModel.totalPage} ? 'page-item disabled' : 'page-item'">
-                        <a class="page-link" th:href="@{/home(pageNumber=${pageModel.currentPage + 1}, pageSize=4)}">Next</a>
+
+                    <li class="page-item" th:class="${pageModel.currentPage == pageModel.totalPage} ? 'page-item disabled' : 'page-item'">
+                        <a class="page-link" th:href="@{/favorite/{id}(id=${session.user.id}, pageNumber=${pageModel.currentPage + 1}, pageSize=4)}">Next</a>
                     </li>
                 </ul>
             </nav>
@@ -132,8 +116,7 @@
                 <div class="card-body">
                     <h3 class="card-title">Search</h3>
                     <form class="d-flex" action="/home/search" method="get">
-                        <input class="form-control me-2" type="search" name="keySearch" placeholder="Search"
-                               aria-label="Search">
+                        <input class="form-control me-2" type="search" name="keySearch" placeholder="Search" aria-label="Search" th:value="${keySearch}">
                         <button class="btn btn-outline-primary" type="submit">Search</button>
                     </form>
                 </div>
@@ -173,17 +156,7 @@
                     </ul>
                 </div>
             </div>
-            <div class="card mb-4">
-                <div class="card-body">
-                    <h3 class="card-title">Recent Posts</h3>
-                    <ul class="list-unstyled" th:each="recent : ${top5Recent}">
-                        <li class="mb-2"><a style="text-decoration: none;"
-                                            th:href="@{/api/v1/posts/{id}(id=${recent.id})}"
-                                            class="text-decoration-none"><span th:text="${recent.title}"></span></a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+
         </div>
     </div>
 </div>
@@ -219,50 +192,7 @@
     </div>
 </footer>
 
-<div class="modal fade" id="newBlogModal" tabindex="-1" aria-labelledby="newBlogModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="newBlogModalLabel">Add New Blog</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form th:action="@{/api/v1/posts}" th:object="${postRequest}" method="post">
-                    <div class="mb-3">
-                        <label for="blogTitle" class="form-label">Title</label>
-                        <input type="text" class="form-control" id="blogTitle" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="blogCategory" class="form-label">Category</label>
-                        <select class="form-select" id="blogCategory" required>
-                            <option value="0">Select a category</option>
-                            <option value="4">Web Development</option>
-                            <option value="3">JavaScript</option>
-                            <option value="2">CSS</option>
-                            <option value="1">React</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="blogContent" class="form-label">Content</label>
-                        <textarea class="form-control" id="blogContent" rows="5" required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="blogImage" class="form-label">Image</label>
-                        <input type="file" class="form-control" id="blogImage">
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Save Blog</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
 <script src="/js/index.js"></script>
 </body>
-
 </html>

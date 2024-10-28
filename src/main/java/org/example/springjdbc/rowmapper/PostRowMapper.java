@@ -1,6 +1,7 @@
 package org.example.springjdbc.rowmapper;
 
 import org.example.springjdbc.entity.Account;
+import org.example.springjdbc.entity.Category;
 import org.example.springjdbc.entity.Post;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -10,6 +11,10 @@ import java.sql.SQLException;
 public class PostRowMapper implements RowMapper<Post> {
     @Override
     public Post mapRow(ResultSet rs, int rowNum) throws SQLException {
+        Category category = Category.builder()
+                .id(rs.getLong("idCategory"))
+                .category_name(rs.getString("category_name"))
+                .build();
         Account account = Account.builder()
                 .id(rs.getLong(10))
                 .username(rs.getString(11))
@@ -29,6 +34,7 @@ public class PostRowMapper implements RowMapper<Post> {
                 .created_at(rs.getTimestamp(4).toLocalDateTime())
                 .status(rs.getInt(6))
                 .author(account)
+                .category(category)
                 .build();
     }
 }

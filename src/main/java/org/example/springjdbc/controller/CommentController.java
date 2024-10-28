@@ -1,19 +1,16 @@
 package org.example.springjdbc.controller;
 
-import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpSession;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.apache.tomcat.util.http.fileupload.FileUtils;
-import org.example.springjdbc.dto.CommentRequest;
+import org.example.springjdbc.model.CommentRequest;
 import org.example.springjdbc.mapper.AccountMapper;
-import org.example.springjdbc.model.AccountResponse;
-import org.example.springjdbc.model.CommentResponse;
+import org.example.springjdbc.dto.AccountResponse;
+import org.example.springjdbc.dto.CommentResponse;
 import org.example.springjdbc.service.impl.AccountService;
 import org.example.springjdbc.service.impl.CommentService;
 import org.example.springjdbc.service.impl.PostService;
-import org.example.springjdbc.utils.FIleUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -38,12 +35,18 @@ public class CommentController {
 
     @PostMapping("")
     public void addComment(@RequestPart CommentRequest commentRequest,
-                           @RequestParam(value = "image", required = false) MultipartFile image
+                           @RequestParam(value = "image", required = false) MultipartFile image, HttpSession session
     ) throws IOException {
-        AccountResponse accountResponse = accountService.findById(1L);
+        AccountResponse accSession = (AccountResponse) session.getAttribute("user");
+        if (accSession == null) {
+            AccountResponse accountResponse = accountService.findById(1L);
+            commentRequest.setAccount(AccountMapper.toAccount(accountResponse));
+            commentRequest.setName_user("john_doe");
+        } else {
+            commentRequest.setAccount(AccountMapper.toAccount(accSession));
+            commentRequest.setName_user(accSession.getUsername());
+        }
         commentRequest.setImage(saveImage(image));
-        commentRequest.setAccount(AccountMapper.toAccount(accountResponse));
-        commentRequest.setName_user("john_doe");
         int result = commentService.addComment(commentRequest);
     }
 

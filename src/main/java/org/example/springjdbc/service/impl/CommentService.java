@@ -3,16 +3,14 @@ package org.example.springjdbc.service.impl;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.example.springjdbc.dto.CommentRequest;
-import org.example.springjdbc.entity.Account;
+import org.example.springjdbc.model.CommentRequest;
 import org.example.springjdbc.entity.Comment;
 import org.example.springjdbc.mapper.CommentMapper;
-import org.example.springjdbc.model.CommentResponse;
+import org.example.springjdbc.dto.CommentResponse;
 import org.example.springjdbc.repository.AccountRepository;
 import org.example.springjdbc.repository.CommentRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service

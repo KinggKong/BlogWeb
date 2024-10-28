@@ -19,4 +19,5 @@ public class Post {
     LocalDateTime created_at;
     int status;
     Account author;
+    Category category;
 }

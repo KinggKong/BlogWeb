@@ -1,13 +1,13 @@
 package org.example.springjdbc.mapper;
 
 import org.example.springjdbc.entity.Post;
-import org.example.springjdbc.model.AccountResponse;
-import org.example.springjdbc.model.PostResponse;
+import org.example.springjdbc.dto.PostResponse;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class PostMapper {
+
     public static PostResponse map(Post post) {
         return PostResponse.builder()
                 .id(post.getId())
@@ -18,6 +18,7 @@ public class PostMapper {
                 .name_user(post.getName_user())
                 .status(post.getStatus())
                 .author(AccountMapper.toAccountResponse(post.getAuthor()))
+                .categoryResponse(CategoryMapper.toCategoryResponse(post.getCategory()))
                 .build();
     }
 

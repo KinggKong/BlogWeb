@@ -1,12 +1,7 @@
 package org.example.springjdbc.mapper;
 
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import org.example.springjdbc.entity.Account;
-import org.example.springjdbc.model.AccountResponse;
-import org.example.springjdbc.model.CommentResponse;
-import org.example.springjdbc.service.impl.AccountService;
+import org.example.springjdbc.dto.AccountResponse;
 
 import java.util.ArrayList;
 import java.util.List;

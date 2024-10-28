@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TechBlog - Search Results</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+          integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container">
+    <a class="navbar-brand" href="/home">TechBlog</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="/home">Home</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Categories
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" th:href="@{/home/category/{id}(id=${4})}">Web Development</a></li>
+            <li><a class="dropdown-item" th:href="@{/home/category/{id}(id=${3})}">JavaScript</a></li>
+            <li><a class="dropdown-item" th:href="@{/home/category/{id}(id=${2})}">CSS</a></li>
+            <li><a class="dropdown-item" th:href="@{/home/category/{id}(id=${1})}">React</a></li>
+          </ul>
+        </li>
+        <li class="nav-item" th:if="${session.user != null}">
+          <a class="nav-link" th:href="@{/api/v1/posts/favorite/{id}(id=${session.user.id})}">Favorite</a>
+        </li>
+<!--        <li class="nav-item">-->
+<!--          <a class="nav-link" href="/authors">Authors</a>-->
+<!--        </li>-->
+      </ul>
+      <div th:if="${session.user == null}">
+        <a href="/auth/login" class="btn btn-outline-primary">
+          <i class="fas fa-sign-in-alt me-2"></i>Login
+        </a>
+      </div>
+      <div th:if="${session.user != null}">
+        <p>Welcome, <span th:text="${session.user.username}">User</span></p>
+        <a href="/auth/logout" class="btn btn-outline-primary">Logout</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-5">
+  <h1 class="text-center mb-5">Search Results</h1>
+
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="mb-4">
+        <h2  class="h4" th:if="${!keySearch.isEmpty()}">Results for: <span th:text="${keySearch}" class="font-italic"></span></h2>
+      </div>
+
+      <div class="card mb-4 blog-post-preview" th:each="post : ${pageModel.data}">
+        <div class="row g-0">
+          <div class="col-md-4">
+            <img th:src="${post.image}"
+                 class="img-fluid rounded-start" alt="Blog post image">
+          </div>
+          <div class="col-md-8">
+            <div class="card-body">
+              <h3 class="card-title h4" th:text="${post.title}">Search Result Title</h3>
+              <p class="card-text" th:text="${#strings.abbreviate(post.content, 200)}">This is a preview of the search result content...</p>
+              <p class="card-text post-meta">
+                <small class="text-muted">
+                  <i class="bi bi-person"></i> <span th:text="${post.name_user}"></span>
+                  <i class="bi bi-calendar3 ms-2"></i> <span th:text="${#temporals.format(post.created_at, 'dd-MM-yyyy HH:mm')}"></span>
+                  <span th:if="${post.totalComments > 0}">
+                                        <i class="bi bi-chat-left-text ms-2"></i> <span th:text="${post.totalComments}"></span> Comments
+                                    </span>
+                  <i class="bi bi-tags ms-2"></i>
+                  <span th:text="${post.categoryResponse.category_name}"></span>
+                  <span class="ms-2" th:if="${post.totalLikes > 0}">
+                                    <i class="bi bi-heart"></i>
+                                    <span  th:text="${post.totalLikes}"></span> Likes
+                                </span>
+                </small>
+              </p>
+              <a th:href="@{/api/v1/posts/{id}(id=${post.id})}" class="btn btn-primary btn-sm">Read More</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <nav aria-label="Search results navigation" th:if="${pageModel.totalPage > 0}">
+        <ul class="pagination justify-content-center">
+          <li class="page-item" th:class="${pageModel.currentPage == 1} ? 'page-item disabled' : 'page-item'">
+            <a class="page-link" href="#" th:href="@{/home/search(keySearch=${keySearch},pageNumber=${pageModel.currentPage - 1}, pageSize=4)}" tabindex="-1">Previous</a>
+          </li>
+          <li class="page-item" th:class="${p==pageModel.currentPage} ? 'page-item active' : 'page-item'" aria-current="page" th:each="p : ${pageModel.pageNumbers}">
+            <a class="page-link" href="#" th:text="${p}"
+               th:href="@{/home/search(keySearch=${keySearch},pageNumber=${p}, pageSize=4)}"></a>
+          </li>
+          <li class="page-item" th:class="${pageModel.currentPage == pageModel.totalPage} ? 'page-item disabled' : 'page-item'">
+            <a class="page-link" th:href="@{/home/search(keySearch=${keySearch},pageNumber=${pageModel.currentPage + 1}, pageSize=4)}">Next</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h3 class="card-title">Search</h3>
+          <form class="d-flex" action="/home/search" method="get">
+            <input class="form-control me-2" type="search" name="keySearch" placeholder="Search" aria-label="Search" th:value="${keySearch}">
+            <button class="btn btn-outline-primary" type="submit">Search</button>
+          </form>
+        </div>
+      </div>
+      <div class="card mb-4">
+        <div class="card-body">
+          <h3 class="card-title">Categories</h3>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              Web Development
+
+              <a th:href="@{/home/category/{id}(id=${4})}"> <span class="badge bg-primary rounded-pill"
+                                                                  th:text="${countWeb}"></span></a>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              JavaScript
+              <a th:href="@{/home/category/{id}(id=${3})}">
+                <span class="badge bg-primary rounded-pill" th:text="${countJS}"></span>
+              </a>
+
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              CSS
+              <a th:href="@{/home/category/{id}(id=${2})}">
+                <span class="badge bg-primary rounded-pill" th:text="${countCSS}"></span>
+              </a>
+
+
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              React
+              <a th:href="@{/home/category/{id}(id=${1})}">
+                <span class="badge bg-primary rounded-pill" th:text="${countReact}"></span>
+              </a>
+
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<footer class="bg-light mt-5 py-4">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-4">
+        <h5>About TechBlog</h5>
+        <p>Bringing you the latest in web development and technology.</p>
+      </div>
+      <div class="col-md-4">
+        <h5>Quick Links</h5>
+        <ul class="list-unstyled">
+          <li><a href="#" class="text-decoration-none">Home</a></li>
+          <li><a href="#" class="text-decoration-none">About</a></li>
+          <li><a href="#" class="text-decoration-none">Contact</a></li>
+          <li><a href="#" class="text-decoration-none">Privacy Policy</a></li>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <h5>Follow Us</h5>
+        <a href="#" class="text-decoration-none me-2"><i class="bi bi-facebook"></i></a>
+        <a href="#" class="text-decoration-none me-2"><i class="bi bi-twitter"></i></a>
+        <a href="#" class="text-decoration-none me-2"><i class="bi bi-linkedin"></i></a>
+        <a href="#" class="text-decoration-none"><i class="bi bi-github"></i></a>
+      </div>
+    </div>
+    <hr>
+    <div class="text-center">
+      <small>&copy; 2024 TechBlog. All rights reserved.</small>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/index.js"></script>
+</body>
+</html>

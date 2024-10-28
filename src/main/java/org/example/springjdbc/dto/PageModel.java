@@ -3,19 +3,18 @@ package org.example.springjdbc.dto;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserRequest {
-    int age;
-    String department;
-    String email;
-    Date jonDate;
-    double salary;
-    String username;
+@Builder
+public class PageModel<T> {
+    @Builder.Default
+    int currentPage =1;
+    List<Integer> pageNumbers;
+    int totalPage;
+    List<T> data;
 }

@@ -24,20 +24,38 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link" href="/home">Home</a>
+                    <a class="nav-link active" aria-current="page" href="/home">Home</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Categories</a>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false">
+                        Categories
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" th:href="@{/home/category/{id}(id=${4})}">Web Development</a></li>
+                        <li><a class="dropdown-item" th:href="@{/home/category/{id}(id=${3})}">JavaScript</a></li>
+                        <li><a class="dropdown-item" th:href="@{/home/category/{id}(id=${2})}">CSS</a></li>
+                        <li><a class="dropdown-item" th:href="@{/home/category/{id}(id=${1})}">React</a></li>
+                    </ul>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">About</a>
+                <li class="nav-item" th:if="${session.user != null}">
+                    <a class="nav-link" th:href="@{/api/v1/posts/favorite/{id}(id=${session.user.id})}">Favorite</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Contact</a>
-                </li>
+<!--                <li class="nav-item">-->
+<!--                    <a class="nav-link" href="/authors">Authors</a>-->
+<!--                </li>-->
             </ul>
+            <div th:if="${session.user == null}">
+                <a href="/auth/login" class="btn btn-outline-primary">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                </a>
+            </div>
+            <div th:if="${session.user != null}">
+                <p>Welcome, <span th:text="${session.user.username}">User</span></p>
+                <a href="/auth/logout" class="btn btn-outline-primary">Logout</a>
+            </div>
         </div>
     </div>
 </nav>
@@ -57,6 +75,12 @@
                         <i class="bi bi-calendar3"></i> Published on <span
                             th:text="${#temporals.format(post.created_at, 'dd-MM-yyyy HH:mm')}"></span>
                         <span class="ms-3"><i class="bi bi-eye"></i> 1,234 views</span>
+                        <span th:if="${session.user != null}">
+                        <i class="bi" th:class="${liked ? 'bi-heart-fill text-danger' : 'bi-heart'}"
+                           style="margin-left: 10px"
+                           id="like-icon"
+                           th:onclick="'toggleLike(' + ${post.id} + ', ' + ${session.user.id} + ')'"></i>
+                    </span>
                     </div>
                 </div>
                 <img th:src="${post.image}" alt="The Future of Web Development" class="img-fluid rounded mb-4">
@@ -70,6 +94,7 @@
                     <a href="#" class="badge bg-primary text-decoration-none tag">Accessibility</a>
                 </div>
             </article>
+
 
             <section class="author-bio bg-light p-4 rounded mb-5">
                 <h3>About the Author</h3>
@@ -106,7 +131,8 @@
                                 <p class="card-text" th:text="${comment.content}"></p>
                                 <img th:if="${comment.image}" th:src="${comment.image}" alt="Comment Image"
                                      class="img-fluid">
-                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                <div class="d-flex justify-content-between align-items-center mt-2"
+                                     th:if="${session.user != null}">
                                     <button class="btn btn-sm btn-outline-primary"
                                             th:data-bs-target="'#replyForm-' + ${comment.id}"
                                             data-bs-toggle="collapse">Reply
@@ -122,23 +148,45 @@
                                 </div>
 
                                 <div class="collapse mt-3" th:id="'replyForm-' + ${comment.id}">
-                                    <form th:onsubmit="'submitReply(event, ' + ${comment.id} + '); return false;'" class="reply-form">
+                                    <form th:onsubmit="'submitReply(event, ' + ${comment.id} + '); return false;'">
                                         <div class="mb-3">
-                                            <textarea class="form-control reply-content" rows="3" placeholder="Write your reply..."></textarea>
+                                            <textarea class="form-control reply-content" rows="3"
+                                                      placeholder="Write your reply..."></textarea>
                                         </div>
                                         <div th:id="'previewArea-' + ${comment.id}" class="mb-3 d-none">
-                                            <img th:id="'imagePreview-' + ${comment.id}" class="reply-image-preview img-fluid rounded mb-2" style="max-height: 200px; display: none;">
+                                            <div class="position-relative">
+                                                <img th:id="'imagePreview-' + ${comment.id}"
+                                                     class="reply-image-preview img-fluid rounded mb-2"
+                                                     style="max-height: 200px; display: none;">
+                                                <button type="button"
+                                                        class="btn-close position-absolute top-0 end-0 m-1"
+                                                        th:onclick="'removeReplyImage(' + ${comment.id} + ')'"></button>
+                                            </div>
                                         </div>
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div class="d-flex gap-2">
                                                 <div class="position-relative">
-                                                    <button type="button" class="btn btn-outline-secondary btn-sm" th:onclick="'document.querySelector(\'#imageInput-' + ${comment.id} + '\').click()'">
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm"
+                                                            th:onclick="'document.querySelector(\'#imageInput-' + ${comment.id} + '\').click()'">
                                                         <i class="bi bi-image"></i> Add Image
                                                     </button>
-                                                    <input type="file" th:id="'imageInput-' + ${comment.id}" class="reply-image-input" accept="image/*"
-                                                           style="display: none;" th:onchange="'handleReplyImageSelect(event, ' + ${comment.id} + ')'">
+                                                    <input type="file" th:id="'imageInput-' + ${comment.id}"
+                                                           class="reply-image-input" accept="image/*"
+                                                           style="display: none;"
+                                                           th:onchange="'handleReplyImageSelect(event, ' + ${comment.id} + ')'">
                                                 </div>
-                                                <!-- Emoji dropdown remains the same -->
+                                                <div class="dropdown">
+                                                    <button type="button"
+                                                            class="btn btn-outline-secondary btn-sm dropdown-toggle"
+                                                            data-bs-toggle="dropdown">
+                                                        <i class="bi bi-emoji-smile"></i>
+                                                    </button>
+                                                    <div class="dropdown-menu p-2 emoji-picker">
+                                                        <span th:onclick="'addEmojiToReply(\'😊\', ' + ${comment.id} + ')'">😊</span>
+                                                        <span th:onclick="'addEmojiToReply(\'👍\', ' + ${comment.id} + ')'">👍</span>
+                                                        <span th:onclick="'addEmojiToReply(\'❤️\', ' + ${comment.id} + ')'">❤️</span>
+                                                    </div>
+                                                </div>
                                             </div>
                                             <button type="submit" class="btn btn-primary btn-sm">Submit Reply</button>
                                         </div>
@@ -170,7 +218,8 @@
                                                 </small>
                                             </div>
                                             <p class="card-text" th:text="${relyCmt.content}"></p>
-                                            <div class="d-flex justify-content-between align-items-center">
+                                            <div class="d-flex justify-content-between align-items-center"
+                                                 th:if="${session.user != null}">
                                                 <button class="btn btn-sm btn-outline-primary"
                                                         th:data-bs-target="'#replyForm-reply-' + ${relyCmt.id}"
                                                         data-bs-toggle="collapse">Reply
@@ -187,20 +236,31 @@
                                             <div class="collapse mt-3" th:id="'replyForm-reply-' + ${relyCmt.id}">
                                                 <form th:onsubmit="'submitReply(event, ' + ${relyCmt.id} + '); return false;'">
                                                     <div class="mb-3">
-                                                        <textarea class="form-control" rows="3" placeholder="Write your reply..."></textarea>
+                                                        <textarea class="form-control" rows="3"
+                                                                  placeholder="Write your reply..."></textarea>
                                                     </div>
-                                                    <div th:id="'previewArea-reply-' + ${relyCmt.id}" class="mb-3 d-none">
-                                                        <img th:id="'imagePreview-reply-' + ${relyCmt.id}" class="reply-image-preview img-fluid rounded mb-2" style="max-height: 200px; display: none;">
+                                                    <div th:id="'previewArea-reply-' + ${relyCmt.id}"
+                                                         class="mb-3 d-none">
+                                                        <img th:id="'imagePreview-reply-' + ${relyCmt.id}"
+                                                             class="reply-image-preview img-fluid rounded mb-2"
+                                                             style="max-height: 200px; display: none;">
                                                     </div>
                                                     <div class="d-flex justify-content-between align-items-center">
                                                         <div class="position-relative">
-                                                            <button type="button" class="btn btn-outline-secondary btn-sm" th:onclick="'document.querySelector(\'#imageInput-reply-' + ${relyCmt.id} + '\').click()'">
+                                                            <button type="button"
+                                                                    class="btn btn-outline-secondary btn-sm"
+                                                                    th:onclick="'document.querySelector(\'#imageInput-reply-' + ${relyCmt.id} + '\').click()'">
                                                                 <i class="bi bi-image"></i> Add Image
                                                             </button>
-                                                            <input type="file" th:id="'imageInput-reply-' + ${relyCmt.id}" class="reply-image-input" accept="image/*"
-                                                                   style="display: none;" th:onchange="'handleReplyImageSelect(event, ' + ${relyCmt.id} + ')'">
+                                                            <input type="file"
+                                                                   th:id="'imageInput-reply-' + ${relyCmt.id}"
+                                                                   class="reply-image-input" accept="image/*"
+                                                                   style="display: none;"
+                                                                   th:onchange="'handleReplyImageSelect(event, ' + ${relyCmt.id} + ')'">
                                                         </div>
-                                                        <button type="submit" class="btn btn-primary btn-sm">Submit Reply</button>
+                                                        <button type="submit" class="btn btn-primary btn-sm">Submit
+                                                            Reply
+                                                        </button>
                                                     </div>
                                                 </form>
                                             </div>
@@ -213,9 +273,8 @@
                 </div>
             </section>
 
-            <section class="add-comment mt-5">
+            <section th:if="${session.user != null}" class="add-comment mt-5">
                 <h3 class="mb-4">Add a Comment</h3>
-                <!-- Form chính để comment -->
                 <form id="commentForm" class="mb-4" onsubmit="addComment(event)">
                     <input type="hidden" id="postId" th:value="${post.id}">
                     <div class="card">
@@ -286,19 +345,31 @@
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             Web Development
-                            <span class="badge bg-primary rounded-pill">12</span>
+
+                            <a th:href="@{/home/category/{id}(id=${4})}"> <span class="badge bg-primary rounded-pill"
+                                                                                th:text="${countWeb}"></span></a>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             JavaScript
-                            <span class="badge bg-primary rounded-pill">8</span>
+                            <a th:href="@{/home/category/{id}(id=${3})}">
+                                <span class="badge bg-primary rounded-pill" th:text="${countJS}"></span>
+                            </a>
+
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             CSS
-                            <span class="badge bg-primary rounded-pill">5</span>
+                            <a th:href="@{/home/category/{id}(id=${2})}">
+                                <span class="badge bg-primary rounded-pill" th:text="${countCSS}"></span>
+                            </a>
+
+
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             React
-                            <span class="badge bg-primary rounded-pill">7</span>
+                            <a th:href="@{/home/category/{id}(id=${1})}">
+                                <span class="badge bg-primary rounded-pill" th:text="${countReact}"></span>
+                            </a>
+
                         </li>
                     </ul>
                 </div>
@@ -306,12 +377,10 @@
             <div class="card mb-4">
                 <div class="card-body">
                     <h3 class="card-title">Recent Posts</h3>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><a href="#" class="text-decoration-none">10 Must-Know JavaScript Tips</a></li>
-                        <li class="mb-2"><a href="#" class="text-decoration-none">CSS Grid: A Complete Guide</a></li>
-                        <li class="mb-2"><a href="#" class="text-decoration-none">Getting Started with React Hooks</a>
-                        </li>
-                        <li class="mb-2"><a href="#" class="text-decoration-none">The Power of Progressive Web Apps</a>
+                    <ul class="list-unstyled" th:each="recent : ${top5Recent}">
+                        <li class="mb-2"><a style="text-decoration: none;"
+                                            th:href="@{/api/v1/posts/{id}(id=${recent.id})}"
+                                            class="text-decoration-none"><span th:text="${recent.title}"></span></a>
                         </li>
                     </ul>
                 </div>

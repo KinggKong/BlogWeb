@@ -1,4 +1,4 @@
-package org.example.springjdbc.dto;
+package org.example.springjdbc.model;
 
 import lombok.*;
 

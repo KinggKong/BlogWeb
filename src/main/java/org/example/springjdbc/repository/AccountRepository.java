@@ -32,4 +32,9 @@ public class AccountRepository {
         String sql = "select * from account where id = ?";
         return jdbcTemplate.queryForObject(sql, new AccountRowMapper(), id);
     }
+
+    public Account findByUserName(String username) {
+        String sql = "select * from account where username = ?";
+        return jdbcTemplate.queryForObject(sql, new AccountRowMapper(), username);
+    }
 }

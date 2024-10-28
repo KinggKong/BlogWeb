@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.example.springjdbc.entity.Account;
 import org.example.springjdbc.mapper.AccountMapper;
-import org.example.springjdbc.model.AccountResponse;
+import org.example.springjdbc.dto.AccountResponse;
 import org.example.springjdbc.repository.AccountRepository;
 import org.example.springjdbc.repository.CommentRepository;
 import org.springframework.stereotype.Service;
@@ -37,5 +37,10 @@ public class AccountService {
             accountResponse.setComments(commentService.findByPostId(id));
         }
         return accountResponses;
+    }
+
+    public AccountResponse findByUserName(String username) {
+        Account account = accountRepository.findByUserName(username);
+        return AccountMapper.toAccountResponse(account);
     }
 }

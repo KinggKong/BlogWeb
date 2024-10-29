@@ -45,158 +45,8 @@ function reloadToComment(postID) {
         url: url,
         dataType: "JSON",
         success: function (data) {
-            let contentComment = `
-                <h2 class="mb-4">Comments (<span id="totalComments"></span>)</h2>
-            `;
-            data.forEach((comment, index) => {
-                contentComment += `
-                    <div class="comment card mb-3">
-                        <div class="card-body">
-                            <div class="d-flex">
-                                <img src="${comment.account.image}" alt="Avatar" class="rounded-circle me-3 comment-avatar">
-                                <div class="flex-grow-1">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <h5 class="card-title mb-0">${comment.name_user}</h5>
-                                        <small class="text-muted comment-metadata">
-                                            <i class="bi bi-clock"></i> ${new Date(comment.created_at).toLocaleString()}
-                                        </small>
-                                    </div>
-                                    <p class="card-text">${comment.content}</p>
-                                    ${comment.image ? `<img style="margin-bottom: 10px" src="${comment.image}" alt="Comment Image" class="img-fluid">` : ''}
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#replyForm-${comment.id}">Reply</button>
-                                        <div>
-                                            <button class="btn btn-sm btn-outline-secondary me-2">
-                                                <i class="bi bi-hand-thumbs-up"></i> 5
-                                            </button>
-                                            <button class="btn btn-sm btn-outline-secondary">
-                                                <i class="bi bi-hand-thumbs-down"></i> 0
-                                            </button>
-                                        </div>
-                                    </div>
-                              
-                                    <div class="collapse mt-3" id="replyForm-${comment.id}">
-                                        <form onsubmit="submitReply(event, ${comment.id}); return false;">
-                                            <div class="mb-3">
-                                                <textarea class="form-control reply-content" rows="3" placeholder="Write your reply..."></textarea>
-                                            </div>
-                                            <div id="previewArea-${comment.id}" class="mb-3 d-none">
-                                                <div class="position-relative">
-                                                    <img id="imagePreview-${comment.id}" class="reply-image-preview img-fluid rounded mb-2" style="max-height: 200px; display: none;">
-                                                    <button type="button" class="btn-close position-absolute top-0 end-0 m-1" onclick="removeReplyImage(${comment.id})"></button>
-                                                </div>
-                                            </div>
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <div class="d-flex gap-2">
-                                                    <div class="position-relative">
-                                                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="document.querySelector('#imageInput-${comment.id}').click()">
-                                                            <i class="bi bi-image"></i> Add Image
-                                                        </button>
-                                                        <input type="file" id="imageInput-${comment.id}" class="reply-image-input" accept="image/*"
-                                                               style="display: none;" onchange="handleReplyImageSelect(event, ${comment.id})">
-                                                    </div>
-                                                    <div class="dropdown">
-                                                        <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle"
-                                                                data-bs-toggle="dropdown">
-                                                            <i class="bi bi-emoji-smile"></i>
-                                                        </button>
-                                                        <div class="dropdown-menu p-2 emoji-picker">
-                                                            <span onclick="addEmojiToReply('😊', ${comment.id})">😊</span>
-                                                            <span onclick="addEmojiToReply('👍', ${comment.id})">👍</span>
-                                                            <span onclick="addEmojiToReply('❤️', ${comment.id})">❤️</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <button type="submit" class="btn btn-primary btn-sm">Submit Reply</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        ${comment.replyComment && comment.replyComment.length > 0 ? `
-                            <div>
-                                ${comment.replyComment.map(reply => `
-                                    <div class="card-body border-top">
-                                        <div class="d-flex">
-                                            <div class="flex-grow-0 me-3">
-                                                <div style="width: 32px; height: 32px;"></div>
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <div class="d-flex">
-                                                    <img src="${reply.account.image}" alt="Avatar" class="rounded-circle me-3" style="width: 48px; height: 48px;">
-                                                    <div class="flex-grow-1">
-                                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                                            <h6 class="card-title mb-0">${reply.name_user}</h6>
-                                                            <small class="text-muted comment-metadata">
-                                                                <i class="bi bi-clock"></i> ${new Date(reply.created_at).toLocaleString()}
-                                                            </small>
-                                                        </div>
-                                                        <p class="card-text">${reply.content}</p>
-                                                        ${reply.image ? `<img style="margin-bottom: 10px" src="${reply.image}" alt="Reply Image" class="img-fluid">` : ''}
-                                                        <div class="d-flex justify-content-between align-items-center mt-2">
-                                                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#replyForm-reply-${reply.id}">Reply</button>
-                                                            <div>
-                                                                <button class="btn btn-sm btn-outline-secondary me-2">
-                                                                    <i class="bi bi-hand-thumbs-up"></i> 3
-                                                                </button>
-                                                                <button class="btn btn-sm btn-outline-secondary">
-                                                                    <i class="bi bi-hand-thumbs-down"></i> 0
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                             
-                                                        <div class="collapse mt-3" id="replyForm-reply-${reply.id}">
-                                                            <form onsubmit="submitReply(event, ${comment.id}, true); return false;">
-                                                                <div class="mb-3">
-                                                                    <textarea class="form-control reply-content" rows="3" placeholder="Write your reply..."></textarea>
-                                                                </div>
-                                                          <div id="previewArea-reply-${reply.id}" class="mb-3 d-none">
-    <div class="position-relative">
-        <img id="imagePreview-reply-${reply.id}" class="reply-image-preview img-fluid rounded mb-2" style="max-height: 200px; display: none;">
-        <button type="button" class="btn-close position-absolute top-0 end-0 m-1" onclick="removeReplyImage(${reply.id}, true)"></button>
-    </div>
-</div>
-                                                                <div class="d-flex justify-content-between align-items-center">
-                                                                    <div class="d-flex gap-2">
-                                                                        <div class="position-relative">
-                                                                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="document.querySelector('#imageInput-reply-${reply.id}').click()">
-                                                                                <i class="bi bi-image"></i> Add Image
-                                                                            </button>
-                                                                           <input type="file" id="imageInput-reply-${reply.id}" class="reply-image-input" accept="image/*"
-                                                                             style="display: none;" onchange="handleReplyImageSelect(event, ${reply.id}, true)">
-                                                                        </div>
-                                                                        <div class="dropdown">
-                                                                            <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle"
-                                                                                    data-bs-toggle="dropdown">
-                                                                                <i class="bi bi-emoji-smile"></i>
-                                                                            </button>
-                                                                            <div class="dropdown-menu p-2 emoji-picker">
-                                                                                <span onclick="addEmojiToReply('😊', ${reply.id})">😊</span>
-                                                                                <span onclick="addEmojiToReply('👍', ${reply.id})">👍</span>
-                                                                                <span onclick="addEmojiToReply('❤️', ${reply.id})">❤️</span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <button type="submit" class="btn btn-primary btn-sm">Submit Reply</button>
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        ` : ''}
-                    </div>
-                `;
-            });
-
-            $('#main_comment').html(contentComment);
-            reloadTotalComment(postID);
+            allComments = data;
+            renderComment(postID);
         },
         error: function (error) {
             console.log(error);
@@ -358,3 +208,184 @@ function toggleLike(idPost, idAccount) {
     });
 }
 
+// show more
+
+let currentPage = 1;
+const commentsPerPage = 5;
+let allComments = [];
+
+function resetPagination() {
+    currentPage = 2;
+    allComments = [];
+}
+
+function loadMoreComments(postID) {
+    currentPage++;
+    renderComment(postID);
+}
+function renderComment(postId){
+    const endIndex = currentPage * commentsPerPage;
+    const commentsToShow = allComments.slice(0, endIndex);
+    let contentComment = `
+                <h2 class="mb-4">Comments (<span id="totalComments"></span>)</h2>
+            `;
+    commentsToShow.forEach((comment, index) => {
+        contentComment += `
+                    <div class="comment card mb-3">
+                        <div class="card-body">
+                            <div class="d-flex">
+                                <img src="${comment.account.image}" alt="Avatar" class="rounded-circle me-3 comment-avatar">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h5 class="card-title mb-0">${comment.name_user}</h5>
+                                        <small class="text-muted comment-metadata">
+                                            <i class="bi bi-clock"></i> ${new Date(comment.created_at).toLocaleString()}
+                                        </small>
+                                    </div>
+                                    <p class="card-text">${comment.content}</p>
+                                    ${comment.image ? `<img style="margin-bottom: 10px" src="${comment.image}" alt="Comment Image" class="img-fluid">` : ''}
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#replyForm-${comment.id}">Reply</button>
+                                        <div>
+                                            <button class="btn btn-sm btn-outline-secondary me-2">
+                                                <i class="bi bi-hand-thumbs-up"></i> 5
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary">
+                                                <i class="bi bi-hand-thumbs-down"></i> 0
+                                            </button>
+                                        </div>
+                                    </div>
+                              
+                                    <div class="collapse mt-3" id="replyForm-${comment.id}">
+                                        <form onsubmit="submitReply(event, ${comment.id}); return false;">
+                                            <div class="mb-3">
+                                                <textarea class="form-control reply-content" rows="3" placeholder="Write your reply..."></textarea>
+                                            </div>
+                                            <div id="previewArea-${comment.id}" class="mb-3 d-none">
+                                                <div class="position-relative">
+                                                    <img id="imagePreview-${comment.id}" class="reply-image-preview img-fluid rounded mb-2" style="max-height: 200px; display: none;">
+                                                    <button type="button" class="btn-close position-absolute top-0 end-0 m-1" onclick="removeReplyImage(${comment.id})"></button>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="d-flex gap-2">
+                                                    <div class="position-relative">
+                                                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="document.querySelector('#imageInput-${comment.id}').click()">
+                                                            <i class="bi bi-image"></i> Add Image
+                                                        </button>
+                                                        <input type="file" id="imageInput-${comment.id}" class="reply-image-input" accept="image/*"
+                                                               style="display: none;" onchange="handleReplyImageSelect(event, ${comment.id})">
+                                                    </div>
+                                                    <div class="dropdown">
+                                                        <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle"
+                                                                data-bs-toggle="dropdown">
+                                                            <i class="bi bi-emoji-smile"></i>
+                                                        </button>
+                                                        <div class="dropdown-menu p-2 emoji-picker">
+                                                            <span onclick="addEmojiToReply('😊', ${comment.id})">😊</span>
+                                                            <span onclick="addEmojiToReply('👍', ${comment.id})">👍</span>
+                                                            <span onclick="addEmojiToReply('❤️', ${comment.id})">❤️</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary btn-sm">Submit Reply</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        ${comment.replyComment && comment.replyComment.length > 0 ? `
+                            <div>
+                                ${comment.replyComment.map(reply => `
+                                    <div class="card-body border-top">
+                                        <div class="d-flex">
+                                            <div class="flex-grow-0 me-3">
+                                                <div style="width: 32px; height: 32px;"></div>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <div class="d-flex">
+                                                    <img src="${reply.account.image}" alt="Avatar" class="rounded-circle me-3" style="width: 48px; height: 48px;">
+                                                    <div class="flex-grow-1">
+                                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                                            <h6 class="card-title mb-0">${reply.name_user}</h6>
+                                                            <small class="text-muted comment-metadata">
+                                                                <i class="bi bi-clock"></i> ${new Date(reply.created_at).toLocaleString()}
+                                                            </small>
+                                                        </div>
+                                                        <p class="card-text">${reply.content}</p>
+                                                        ${reply.image ? `<img style="margin-bottom: 10px" src="${reply.image}" alt="Reply Image" class="img-fluid">` : ''}
+                                                        <div class="d-flex justify-content-between align-items-center mt-2">
+                                                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#replyForm-reply-${reply.id}">Reply</button>
+                                                            <div>
+                                                                <button class="btn btn-sm btn-outline-secondary me-2">
+                                                                    <i class="bi bi-hand-thumbs-up"></i> 3
+                                                                </button>
+                                                                <button class="btn btn-sm btn-outline-secondary">
+                                                                    <i class="bi bi-hand-thumbs-down"></i> 0
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                             
+                                                        <div class="collapse mt-3" id="replyForm-reply-${reply.id}">
+                                                            <form onsubmit="submitReply(event, ${comment.id}, true); return false;">
+                                                                <div class="mb-3">
+                                                                    <textarea class="form-control reply-content" rows="3" placeholder="Write your reply..."></textarea>
+                                                                </div>
+                                                          <div id="previewArea-reply-${reply.id}" class="mb-3 d-none">
+    <div class="position-relative">
+        <img id="imagePreview-reply-${reply.id}" class="reply-image-preview img-fluid rounded mb-2" style="max-height: 200px; display: none;">
+        <button type="button" class="btn-close position-absolute top-0 end-0 m-1" onclick="removeReplyImage(${reply.id}, true)"></button>
+    </div>
+</div>
+                                                                <div class="d-flex justify-content-between align-items-center">
+                                                                    <div class="d-flex gap-2">
+                                                                        <div class="position-relative">
+                                                                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="document.querySelector('#imageInput-reply-${reply.id}').click()">
+                                                                                <i class="bi bi-image"></i> Add Image
+                                                                            </button>
+                                                                           <input type="file" id="imageInput-reply-${reply.id}" class="reply-image-input" accept="image/*"
+                                                                             style="display: none;" onchange="handleReplyImageSelect(event, ${reply.id}, true)">
+                                                                        </div>
+                                                                        <div class="dropdown">
+                                                                            <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle"
+                                                                                    data-bs-toggle="dropdown">
+                                                                                <i class="bi bi-emoji-smile"></i>
+                                                                            </button>
+                                                                            <div class="dropdown-menu p-2 emoji-picker">
+                                                                                <span onclick="addEmojiToReply('😊', ${reply.id})">😊</span>
+                                                                                <span onclick="addEmojiToReply('👍', ${reply.id})">👍</span>
+                                                                                <span onclick="addEmojiToReply('❤️', ${reply.id})">❤️</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <button type="submit" class="btn btn-primary btn-sm">Submit Reply</button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+    });
+
+    if (endIndex < allComments.length) {
+        contentComment += `
+            <div class="text-center mt-4 mb-4">
+                <button onclick="loadMoreComments(${postId})" class="btn btn-outline-primary">
+                    Load More Comments (${allComments.length - endIndex} more)
+                </button>
+            </div>
+        `;
+    }
+
+    $('#main_comment').html(contentComment);
+    reloadTotalComment(postId);
+}

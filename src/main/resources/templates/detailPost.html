@@ -115,7 +115,7 @@
                 <h2 class="mb-4" th:if="${post.totalComments > 0}" id="totalComments">Comments (<span
                         th:text="${post.totalComments}"></span>)</h2>
 
-                <div th:each="comment : ${post.comments}" class="comment card mb-3">
+                <div th:each="comment,cmtStart : ${post.comments}" th:unless="${cmtStart.index > 4}" class="comment card mb-3">
                     <div class="card-body">
                         <div class="d-flex">
                             <img th:src="${comment.account.image}" alt="John Smith's avatar"
@@ -234,16 +234,20 @@
                                                 </div>
                                             </div>
                                             <div class="collapse mt-3" th:id="'replyForm-reply-' + ${relyCmt.id}">
-                                                <form th:onsubmit="'submitReply(event, ' + ${relyCmt.id} + '); return false;'">
+                                                <form th:onsubmit="|submitReply(event, ${comment.id}, true); return false;|">
                                                     <div class="mb-3">
-                                                        <textarea class="form-control" rows="3"
+                                                        <textarea class="form-control reply-content" rows="3"
                                                                   placeholder="Write your reply..."></textarea>
                                                     </div>
                                                     <div th:id="'previewArea-reply-' + ${relyCmt.id}"
                                                          class="mb-3 d-none">
-                                                        <img th:id="'imagePreview-reply-' + ${relyCmt.id}"
-                                                             class="reply-image-preview img-fluid rounded mb-2"
-                                                             style="max-height: 200px; display: none;">
+                                                        <div class="position-relative">
+                                                            <img th:id="'imagePreview-reply-' + ${relyCmt.id}"
+                                                                 class="reply-image-preview img-fluid rounded mb-2"
+                                                                 style="max-height: 200px; display: none;">
+                                                            <button type="button" class="btn-close position-absolute top-0 end-0 m-1"
+                                                                    th:onclick="'removeReplyImage(' + ${relyCmt.id} + ', true)'"></button>
+                                                        </div>
                                                     </div>
                                                     <div class="d-flex justify-content-between align-items-center">
                                                         <div class="position-relative">
@@ -256,11 +260,9 @@
                                                                    th:id="'imageInput-reply-' + ${relyCmt.id}"
                                                                    class="reply-image-input" accept="image/*"
                                                                    style="display: none;"
-                                                                   th:onchange="'handleReplyImageSelect(event, ' + ${relyCmt.id} + ')'">
+                                                                   th:onchange="'handleReplyImageSelect(event, ' + ${relyCmt.id} + ', true)'">
                                                         </div>
-                                                        <button type="submit" class="btn btn-primary btn-sm">Submit
-                                                            Reply
-                                                        </button>
+                                                        <button type="submit" class="btn btn-primary btn-sm">Submit Reply</button>
                                                     </div>
                                                 </form>
                                             </div>
@@ -270,6 +272,11 @@
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class="text-center mt-4 mb-4" th:if="${post.totalComments > 5}">
+                    <button th:onclick="|reloadToComment(${post.id})|" class="btn btn-outline-primary">
+                        Load More Comments (<span th:text="${post.totalComments - 5}"></span> more)
+                    </button>
                 </div>
             </section>
 

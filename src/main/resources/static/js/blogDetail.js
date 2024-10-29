@@ -2,6 +2,8 @@ let selectedImage = null;
 let selectedEmoji = null;
 let replySelectedImages = {};
 
+hello
+
 function addComment(event, parentId = null) {
     event.preventDefault();
     let contentForm = $('#commentContent').val();
